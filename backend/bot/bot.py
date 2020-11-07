@@ -1,11 +1,14 @@
 import config
 import telebot
 from db_manager import SQL
+import os
 
 
 token = config.API_KEY
 bot = telebot.TeleBot(token)
-db = SQL('database.db')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, "database.db")
+db = SQL(db_path)
 
 keyboard1 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
 keyboard1.row('Клиент', 'Продавец', "Курьер")

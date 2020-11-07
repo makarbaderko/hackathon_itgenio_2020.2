@@ -12,6 +12,6 @@ class SQL:
     def add_user(self, username, name, surname, phone, adress):
         with self.connection:
             return self.cursor.execute("INSERT INTO `delivery` (`username`, `name`, `surname`, `phone-number`, `adress`) VALUES(?,?)", (username, name, surname, phone, adress))
-    def get_user_data(self, username):
-        with self.connection:
-            return self.cursor.execute("")
+    # def get_user_data(self, username):
+    #     with self.connection:
+    #         return self.cursor.execute("")
