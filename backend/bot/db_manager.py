@@ -14,5 +14,6 @@ class SQL:
             return self.cursor.execute("INSERT INTO `delivery` (`username`, `name`, `surname`, `phone-number`, `adress`, `city`) VALUES(?,?)", (username, name, surname, phone, adress, city))
     def get_user_data(self, username):
         with self.connection:
-            result = self.cursor.execute('SELECT * FROM `delivery` WHERE `username` = `username`', (username,)).fetchall()
+            result = self.cursor.execute(f'SELECT * FROM `delivery` WHERE `username` = `?`', (username,)).fetchall()
             return result
+

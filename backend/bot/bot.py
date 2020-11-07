@@ -32,6 +32,7 @@ keyboard7 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
 keyboard7.row("Получить список заказов", "Заказ отдан курьеру", "Что в заказе?")
 
 current_client = {"username": None, "name": None, "surname": None, "phone": None, "adress": None, "city": None}
+foods = ""
 
 @bot.message_handler(commands=['start'])
 def start_message(message):
@@ -47,7 +48,8 @@ def process_client_1(message):
         msg = bot.reply_to(message, 'Отлично, что бы Вы хотели сделать?', reply_markup=keyboard2)
         bot.register_next_step_handler(msg, process_client_2)
     if text == 'Ресторан':
-        pass
+        msg = bot.reply_to(message, 'Отлично, что бы Вы хотели сделать?', reply_markup=keyboard7)
+        bot.register_next_step_handler(msg, process_restaurant_1)
     else:
         bot.send_message(message.chat.id, 'In development')
 
@@ -89,6 +91,14 @@ def process_client_7(message):
 
 def process_client_8(message):
     print(message.text)
+
+def process_restaurant_1(message):
+    if message.text == "Получить список заказов":
+        pass
+    if message.text == "Заказ отдан курьеру":
+        pass
+    if message.text == "Что в заказе?":
+        pass
 
 bot.polling()
 
