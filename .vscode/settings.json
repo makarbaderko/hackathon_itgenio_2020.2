@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "itgenio_delivery",
+            "database": "${workspaceFolder:hackathon_itgenio_2020.2}/backend/bot/database.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
