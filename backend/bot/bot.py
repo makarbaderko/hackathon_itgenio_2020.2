@@ -41,6 +41,8 @@ keyboard8.row("Уже зарегистрированы", "Хотим подкл�
 current_client = {"username": None, "name": None, "surname": None, "phone": None, "adress": None, "city": None}
 foods = ""
 
+current_client_for_restaurant = {"order_id": None}
+
 @bot.message_handler(commands=['start'])
 def start_message(message):
     msg = bot.reply_to(message, 'Здравствуйте, скажите, пожалуйста, кто Вы?', reply_markup=keyboard1)
@@ -87,7 +89,7 @@ def process_client_4(message):
 def process_client_5(message):
     global current_client
     current_client["adress"] = message.text
-    msg = bot.reply_to(message, 'Введите, пожалуйста, Ваш номер телефонв.')
+    msg = bot.reply_to(message, 'Введите, пожалуйста, Ваш номер телефона.')
     bot.register_next_step_handler(msg, process_client_6)
 def process_client_6(message):
     global current_client
@@ -127,11 +129,29 @@ def process_restaurant_1_2(message):
         bot.register_next_step_handler(msg, process_restaurant_2)
 def process_restaurant_2(message):
     if message.text == "Получить список заказов":
-        pass
+        data = db.get_all_orders()
+        print(data)
+        returned_data = "Состав " + str(data[0][0]) + " Курьер " + str(data[0][1])
+        print(1)
+        print(returned_data)
+        bot.send_message(message.chat.id, returned_data)
+        msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
+        bot.register_next_step_handler(msg, process_restaurant_2)
     if message.text == "Заказ отдан курьеру":
-        pass
+        msg = bot.reply_to(message, 'Введите, пожалуйста, номер переданного заказа.')
+        bot.register_next_step_handler(msg, process_restaurant_2_1)
     if message.text == "Что в заказе?":
-        pass
+        msg = bot.reply_to(message, 'Введите, пожалуйста, номер заказа, по которму идет поиск')
+        bot.register_next_step_handler(msg, process_restaurant_2_2)
 
+def process_restaurant_2_1(message):
+    db.update_status(message.text, "BEEN DELIVERED")
+    bot.send_message(message.chat.id, "Статус заказа изменен на: Передан Курьеру")
+    msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
+    bot.register_next_step_handler(msg, process_restaurant_2)
+def process_restaurant_2_2(message):
+    data = db.get_food(message.text)
+    bot.send_message(message.chat.id, data)
+    msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
+    bot.register_next_step_handler(msg, process_restaurant_2)
 bot.polling()
-

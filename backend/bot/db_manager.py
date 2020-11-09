@@ -16,4 +16,16 @@ class SQL:
         with self.connection:
             result = self.cursor.execute(f'SELECT * FROM `delivery` WHERE `username` = `?`', (username,)).fetchall()
             return result
+    def get_food(self, order):
+        with self.connection:
+            result = self.cursor.execute(f"SELECT * FROM restaurant WHERE 'order_id' = '{order}';").fetchall()
+            return result
+    def update_status(self, order, status):
+        with self.connection:
+            result = self.cursor.execute(f"UPDATE delivery SET 'STATUS' = '{status}' WHERE 'order_id' = '{order}';").fetchall()
+            print(result)
+    def get_all_orders(self):
+        with self.connection:
+            result = self.cursor.execute("SELECT food, courier_id FROM `restaurant`").fetchall()
+            return result
 
