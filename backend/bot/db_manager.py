@@ -18,14 +18,14 @@ class SQL:
             return result
     def get_food(self, order):
         with self.connection:
-            result = self.cursor.execute(f"SELECT * FROM restaurant WHERE 'order_id' = '{order}';").fetchall()
+            result = self.cursor.execute(f"SELECT * FROM restaurant WHERE order_id = {order}").fetchall()
             return result
     def update_status(self, order, status):
         with self.connection:
-            result = self.cursor.execute(f"UPDATE delivery SET 'STATUS' = '{status}' WHERE 'order_id' = '{order}';").fetchall()
+            result = self.cursor.execute(f"UPDATE delivery SET STATUS = {status} WHERE 'order' = {order};").fetchall()
             print(result)
     def get_all_orders(self):
         with self.connection:
-            result = self.cursor.execute("SELECT food, courier_id FROM `restaurant`").fetchall()
+            result = self.cursor.execute("SELECT  order_id, food, courier_id FROM restaurant WHERE STATUS != 'BEEN_DELIVERED';").fetchall()
             return result
 

@@ -162,7 +162,7 @@ def process_client_10(message):
         msg = bot.reply_to(message, 'Закончим?', reply_markup=keyboard13)
         bot.register_next_step_handler(msg, process_client_11)
 def process_client_11(message):
-    pass
+    bot.send_message(message.chat.id, "Заказ передан в службу доставки. Ожидайте. По всем вопросам звоните на +8 (800) 555-35-35")
 
 def process_restaurant_1(message):
     if message.text == "Уже зарегистрированы":
@@ -186,8 +186,11 @@ def process_restaurant_1_2(message):
 def process_restaurant_2(message):
     if message.text == "Получить список заказов":
         data = db.get_all_orders()
-        returned_data = "Состав " + str(data[0][0]) + " Курьер " + str(data[0][1])
-        bot.send_message(message.chat.id, returned_data)
+        print(data)
+        new_data = ""
+        for tupl in data:
+            new_data += f"Номер заказа: {tupl[0]} Состав заказа: {tupl[1]} Курьер: {tupl[2]}\n"
+        bot.send_message(message.chat.id, new_data)
         msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
         bot.register_next_step_handler(msg, process_restaurant_2)
     if message.text == "Заказ отдан курьеру":
@@ -198,14 +201,14 @@ def process_restaurant_2(message):
         bot.register_next_step_handler(msg, process_restaurant_2_2)
 
 def process_restaurant_2_1(message):
-    db.update_status(message.text, "BEEN DELIVERED")
+    db.update_status(message.text, "BEEN_DELIVERED")
     bot.send_message(message.chat.id, "Статус заказа изменен на: Передан Курьеру")
     msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
     bot.register_next_step_handler(msg, process_restaurant_2)
 def process_restaurant_2_2(message):
     data = db.get_food(message.text)
-    print(data)
-    bot.send_message(message.chat.id, data)
+    new_data = data[0][1]
+    bot.send_message(message.chat.id, new_data)
     msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
     bot.register_next_step_handler(msg, process_restaurant_2)
 bot.polling()
