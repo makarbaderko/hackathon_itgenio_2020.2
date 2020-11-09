@@ -37,8 +37,24 @@ keyboard7.row("Получить список заказов", "Заказ отд
 keyboard8 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
 keyboard8.row("Уже зарегистрированы", "Хотим подключиться")
 
+keyboard9 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard9.row("Cэндвичи", "Бургеры")
+
+keyboard10 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard10.row("Баскеты", "Твистеры")
+
+keyboard11 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard11.row("Сандерс Баскет", "Баскет Дуэт")
+keyboard11.row("Домашний Баскет", "Баскет L")
+
+keyboard12 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard12.row("Да", "Нет")
+
+keyboard13 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard13.row("Закончить оформление заказа", "Прлолжить оформление заказа")
 
 current_client = {"username": None, "name": None, "surname": None, "phone": None, "adress": None, "city": None}
+
 foods = ""
 
 current_client_for_restaurant = {"order_id": None}
@@ -77,10 +93,13 @@ def process_client_2(message):
             bot.register_next_step_handler(msg, process_client_3_yes)
         else:
             bot.send_message(message.chat.id, 'Сейчас мы попросим ввести Ваши данные, для нашей службы доставки.')
+            process_client_4(message)
 def process_client_3_yes(message):
     if message.text == "Нет, я сейчас введу новые":
         msg = bot.reply_to(message, 'Выберите, пожалуйста, Ваш город', reply_markup=keyboard4)
         bot.register_next_step_handler(msg, process_client_4)
+    else:
+        process_client_7_1(message)
 def process_client_4(message):
     global current_client
     current_client["city"] = message.text
@@ -104,9 +123,46 @@ def process_client_7(message):
     else:
         msg = bot.reply_to(message, 'Где бы Вы хотели заказать еду?', reply_markup=keyboard6)
         bot.register_next_step_handler(msg, process_client_8)
-
+def process_client_7_1(message):
+    #db.add_user(username=current_client["username"], name=current_client["name"], surname=current_client["surname"], city=current_client["city"], phone=current_client["city"], adress=current_client["adress"])
+    msg = bot.reply_to(message, 'Где бы Вы хотели заказать еду?', reply_markup=keyboard6)
+    bot.register_next_step_handler(msg, process_client_8)
 def process_client_8(message):
-    print(message.text)
+    if message.text == "KFC":
+        msg = bot.reply_to(message, 'Что бы Вы хотели заказать?', reply_markup=keyboard10)
+        bot.register_next_step_handler(msg, process_client_8_1)
+    if message.text == "McDonalds":
+        msg = bot.reply_to(message, 'Что бы Вы хотели заказать?', reply_markup=keyboard9)
+        bot.register_next_step_handler(msg, process_client_8_2)
+
+def process_client_8_1(message):
+    if message.text == "Баскеты":
+        msg = bot.reply_to(message, 'Что бы Вы хотели заказать?', reply_markup=keyboard11)
+        bot.register_next_step_handler(msg, process_client_9_1)
+    if message.text == "Твистеры":
+        pass
+def process_client_8_2(message):
+    if message.text == "Cэндвичи":
+        pass
+    if message.text == "Бургеры":
+        pass
+
+def process_client_9_1(message):
+    global foods
+    foods += str(message.text)
+    foods += " "
+    msg = bot.reply_to(message, 'Что-нибудь еще?', reply_markup=keyboard12)
+    bot.register_next_step_handler(msg, process_client_10)
+
+def process_client_10(message):
+    if message.text == "Да":
+        msg = bot.reply_to(message, 'Что бы Вы хотели заказать?', reply_markup=keyboard10)
+        bot.register_next_step_handler(msg, process_client_8_1)
+    else:
+        msg = bot.reply_to(message, 'Закончим?', reply_markup=keyboard13)
+        bot.register_next_step_handler(msg, process_client_11)
+def process_client_11(message):
+    pass
 
 def process_restaurant_1(message):
     if message.text == "Уже зарегистрированы":
@@ -130,10 +186,7 @@ def process_restaurant_1_2(message):
 def process_restaurant_2(message):
     if message.text == "Получить список заказов":
         data = db.get_all_orders()
-        print(data)
         returned_data = "Состав " + str(data[0][0]) + " Курьер " + str(data[0][1])
-        print(1)
-        print(returned_data)
         bot.send_message(message.chat.id, returned_data)
         msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
         bot.register_next_step_handler(msg, process_restaurant_2)
@@ -151,6 +204,7 @@ def process_restaurant_2_1(message):
     bot.register_next_step_handler(msg, process_restaurant_2)
 def process_restaurant_2_2(message):
     data = db.get_food(message.text)
+    print(data)
     bot.send_message(message.chat.id, data)
     msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
     bot.register_next_step_handler(msg, process_restaurant_2)

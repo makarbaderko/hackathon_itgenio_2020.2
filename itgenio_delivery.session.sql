@@ -1,1 +1,1 @@
-SELECT * FROM `restaurant`
+SELECT food FROM restaurant WHERE 'order_id' = 1;
