@@ -180,13 +180,11 @@ def process_restaurant_1_2(message):
     global current_restaurant_id, current_restaurant_key
     current_restaurant_key = message.text
     if restaurants[current_restaurant_id] == current_restaurant_key:
-        print("Logged in")
         msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
         bot.register_next_step_handler(msg, process_restaurant_2)
 def process_restaurant_2(message):
     if message.text == "Получить список заказов":
         data = db.get_all_orders()
-        print(data)
         new_data = ""
         for tupl in data:
             new_data += f"Номер заказа: {tupl[0]} Состав заказа: {tupl[1]} Курьер: {tupl[2]}\n"
@@ -201,7 +199,9 @@ def process_restaurant_2(message):
         bot.register_next_step_handler(msg, process_restaurant_2_2)
 
 def process_restaurant_2_1(message):
-    db.update_status(message.text, "BEEN_DELIVERED")
+    text = int(message.text)
+    print(text)
+    db.update_status(text, "BEEN_DELIVERED")
     bot.send_message(message.chat.id, "Статус заказа изменен на: Передан Курьеру")
     msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard7)
     bot.register_next_step_handler(msg, process_restaurant_2)

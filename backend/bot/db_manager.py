@@ -22,7 +22,7 @@ class SQL:
             return result
     def update_status(self, order, status):
         with self.connection:
-            result = self.cursor.execute(f"UPDATE delivery SET STATUS = {status} WHERE 'order' = {order};").fetchall()
+            result = self.cursor.execute(f"UPDATE restaurant SET STATUS = '{status}' WHERE order_id = {order};").fetchall()
             print(result)
     def get_all_orders(self):
         with self.connection:
