@@ -7,6 +7,14 @@ restaurants = {"12345":"abc"}
 current_restaurant_id = ""
 current_restaurant_key = ""
 
+couriers = {"12345":"abc"}
+current_courier_id = ""
+current_courier_key = ""
+
+current_courier_altitude = 0
+current_courier_longitude = 0
+
+
 token = config.API_KEY
 bot = telebot.TeleBot(token)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -53,6 +61,12 @@ keyboard12.row("Да", "Нет")
 keyboard13 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
 keyboard13.row("Закончить оформление заказа", "Прлолжить оформление заказа")
 
+keyboard14 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard14.row("Уже зарегистрирован", "Хочу подключиться")
+
+keyboard15 = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True)
+keyboard15.row("Готов принять заказ", "Передал заказ клиенту")
+
 current_client = {"username": None, "name": None, "surname": None, "phone": None, "adress": None, "city": None}
 
 foods = ""
@@ -67,9 +81,7 @@ def start_message(message):
 
 @bot.message_handler(content_types=['text'])
 def process_client_1(message):
-    l = str(message).split()
-    text = l[-1]
-    text = text[1:-3]
+    text = message.text
     if text == "Клиент":
         msg = bot.reply_to(message, 'Отлично, что бы Вы хотели сделать?', reply_markup=keyboard2)
         bot.register_next_step_handler(msg, process_client_2)
@@ -77,16 +89,44 @@ def process_client_1(message):
         msg = bot.reply_to(message, 'Отлично! Вы уже зарегистрированы в нашей системе?', reply_markup=keyboard8)
         bot.register_next_step_handler(msg, process_restaurant_1)
     if text == "Курьер":
-        pass
+        msg = bot.reply_to(message, 'Отлично! Вы уже зарегистрированы в нашей системе?', reply_markup=keyboard14)
+        bot.register_next_step_handler(msg, process_courier_1)
     else:
         bot.send_message(message.chat.id, 'In development')
 
+def process_courier_1(message):
+    if message.text == "Уже зарегистрирован":
+        msg = bot.reply_to(message, 'Введите, пожалуйста, Ваш ID курьера')
+        bot.register_next_step_handler(msg, process_courier_1_1)
+    if message.text == "Хочу подключиться":
+        bot.send_message(message.chat.id, "Напишите мне в Telegram на t.me/makarbaderko для подключения к нашей сети доставки")
+def process_courier_1_1(message):
+    global current_courier_id
+    current_courier_id = message.text
+    msg = bot.reply_to(message, 'Введите, пожалуйста, Ваш key курьера')
+    bot.register_next_step_handler(msg, process_courier_1_2)
+
+def process_courier_1_2(message):
+    global current_courier_id, current_courier_key
+    current_courier_key = message.text
+    if couriers[current_courier_id] == current_courier_key:
+        msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard15)
+        bot.register_next_step_handler(msg, process_courier_2)
+
+@bot.message_handler(content_types=['location'])
+def process_courier_2(message):
+    if message.text == "Готов принять заказ":
+        msg = bot.reply_to(message, 'С', reply_markup=keyboard15)
+        bot.register_next_step_handler(msg, process_courier_2)
+    if message.text == "Передал заказ клиенту":
+        #global current_courier_longitude, current_courier_altitude
+        #print(message.location.altitude)
+        print(message.location)
+
+
 def process_client_2(message):
-    l = str(message).split()
-    text = l[-2]
-    text = text[1:]
-    if text == "Сделать":
-        username = ((str(message).split("""username': '""")[1]).split("'"))[0]
+    if message.text == "Сделать заказ":
+        username = message.from_user.username
         current_client["username"] = username
         if db.user_exists(current_client["username"]) == True:
             msg = bot.reply_to(message, 'Вы уже заказывали у нас, можем ли мы использовать данные с прошлого заказа?', reply_markup=keyboard3)
