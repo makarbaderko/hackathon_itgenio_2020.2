@@ -1,8 +1,10 @@
+#Imports
 import config
 import telebot
 from db_manager import SQL
 import os
 
+#Globals
 restaurants = {"12345":"abc"}
 current_restaurant_id = ""
 current_restaurant_key = ""
@@ -14,7 +16,7 @@ current_courier_key = ""
 current_courier_altitude = 0
 current_courier_longitude = 0
 
-
+#DB + BOT CONNECTION
 token = config.API_KEY
 bot = telebot.TeleBot(token)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -116,13 +118,20 @@ def process_courier_1_2(message):
 @bot.message_handler(content_types=['location'])
 def process_courier_2(message):
     if message.text == "Готов принять заказ":
-        msg = bot.reply_to(message, 'С', reply_markup=keyboard15)
+        data = db.get_random_order()
+        bot.send_message(message.chat.id, data)
+        msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard15)
         bot.register_next_step_handler(msg, process_courier_2)
     if message.text == "Передал заказ клиенту":
-        #global current_courier_longitude, current_courier_altitude
-        #print(message.location.altitude)
-        print(message.location)
-
+        msg = bot.reply_to(message, 'Введите, пожалуйста, номер переданного клиенту заказа?')
+        bot.register_next_step_handler(msg, process_courier_3)
+    
+def process_courier_3(message):
+    #Смена статуса заказа
+    db.update_status(message.text, "FINISHED")
+    bot.send_message(message.chat.id, "Статус заказа изменен на передан клиенту. Заказ в скором времени будет удален. Деньги будут перечислены Вам в течении 24-х часов")
+    msg = bot.reply_to(message, 'Что бы Вы хотели сделать?', reply_markup=keyboard15)
+    bot.register_next_step_handler(msg, process_courier_2)
 
 def process_client_2(message):
     if message.text == "Сделать заказ":

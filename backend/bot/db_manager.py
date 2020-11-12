@@ -28,4 +28,6 @@ class SQL:
         with self.connection:
             result = self.cursor.execute("SELECT  order_id, food, courier_id FROM restaurant WHERE STATUS != 'BEEN_DELIVERED';").fetchall()
             return result
+    def get_random_order(self):
+        return 0
 
