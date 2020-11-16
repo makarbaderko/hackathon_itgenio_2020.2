@@ -143,6 +143,8 @@ def process_client_2(message):
         else:
             bot.send_message(message.chat.id, 'Сейчас мы попросим ввести Ваши данные, для нашей службы доставки.')
             process_client_4(message)
+    else:
+        bot.send_message(message.chat.id, 'Поскольку в гашей системе пока нет зарегистрированных курьеров, поэтому статус заказа узнать нельзя.')
 def process_client_3_yes(message):
     if message.text == "Нет, я сейчас введу новые":
         msg = bot.reply_to(message, 'Выберите, пожалуйста, Ваш город', reply_markup=keyboard4)
